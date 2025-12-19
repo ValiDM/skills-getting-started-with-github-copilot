@@ -10,9 +10,20 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os
 from pathlib import Path
+from fastapi.responses import JSONResponse
+
 
 app = FastAPI(title="Mergington High School API",
               description="API for viewing and signing up for extracurricular activities")
+
+# Redirect root URL to static index.html
+@app.get("/")
+def root():
+    return RedirectResponse(url="/static/index.html")
+
+@app.get("/activities")
+def get_activities():
+    return JSONResponse(content=activities)
 
 # Mount the static files directory
 current_dir = Path(__file__).parent
@@ -82,6 +93,17 @@ activities = {
         "participants": []
     }
 }
+
+@app.delete("/activities/{activity_name}/unregister")
+def unregister_from_activity(activity_name: str, email: str):
+    """Remove a student from an activity"""
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    activity = activities[activity_name]
+    if email not in activity["participants"]:
+        raise HTTPException(status_code=404, detail="Participant not found in this activity")
+    activity["participants"].remove(email)
+    return {"message": f"Removed {email} from {activity_name}"}
 
 @app.post("/activities/{activity_name}/signup")
 def signup_for_activity(activity_name: str, email: str):
