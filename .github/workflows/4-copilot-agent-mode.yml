@@ -59,7 +59,7 @@ jobs:
       - name: Check for pytest keyphrase in requirements.txt
         id: check-for-pytest
         continue-on-error: true
-        uses: skills/action-keyphrase-checker@v1
+        uses: skills/action-keyphrase-checker@v2
         with:
           text-file: requirements.txt
           keyphrase: pytest
